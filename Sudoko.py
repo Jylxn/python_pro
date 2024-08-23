@@ -1,14 +1,15 @@
 def display_grid(grid):
-    print("  A B C   D E F   G H I")
+    print("  J K L   M N O   P Q R")
     for row_idx, row in enumerate(grid):
         if row_idx % 3 == 0 and row_idx != 0:
             print("  - - - - - - - - - - -")
-        print(row_idx + 1, end=" ")
+        print(chr(row_idx + ord('A')), end=" ")
         for col_idx, value in enumerate(row):
             if col_idx % 3 == 0 and col_idx != 0:
                 print("|", end=" ")
             print(value if value != 0 else ".", end=" ")
         print()
+
 
 def is_move_valid(grid, row_idx, col_idx, number):
     for i in range(9):
@@ -23,12 +24,14 @@ def is_move_valid(grid, row_idx, col_idx, number):
 
     return True
 
+
 def find_empty_cell(grid):
     for row_idx in range(9):
         for col_idx in range(9):
             if grid[row_idx][col_idx] == 0:
                 return (row_idx, col_idx)
     return None
+
 
 def solve_sudoku_puzzle(grid):
     empty_cell = find_empty_cell(grid)
@@ -48,23 +51,14 @@ def solve_sudoku_puzzle(grid):
 
     return False
 
-def get_hint(grid):
-    empty_cell = find_empty_cell(grid)
-    if not empty_cell:
-        return None
-    else:
-        row_idx, col_idx = empty_cell
-
-    for number in range(1, 10):
-        if is_move_valid(grid, row_idx, col_idx, number):
-            return (row_idx, col_idx, number)
-    return None
 
 def play_sudoku(grid):
-    move_history = []
     while True:
         display_grid(grid)
-        user_input = input("Enter your move (e.g., A1 5), 'solve' to solve, 'hint' for a suggestion, 'undo' to undo last move, or 'quit' to exit: ").strip().lower()
+        user_input = input(
+            "Enter your move (e.g., AJ 5), 'solve' to solve, or 'quit' to exit: "
+        ).strip().lower()
+        print()
 
         if user_input == "solve":
             if solve_sudoku_puzzle(grid):
@@ -74,21 +68,6 @@ def play_sudoku(grid):
             display_grid(grid)
             break
 
-        elif user_input == "hint":
-            hint = get_hint(grid)
-            if hint:
-                print(f"Hint: Try placing {hint[2]} at {chr(hint[1] + ord('A'))}{hint[0] + 1}.")
-            else:
-                print("No hints available. The puzzle might be already solved or unsolvable.")
-
-        elif user_input == "undo":
-            if move_history:
-                last_move = move_history.pop()
-                grid[last_move[0]][last_move[1]] = 0
-                print(f"Move undone: Removed {last_move[2]} from {chr(last_move[1] + ord('A'))}{last_move[0] + 1}.")
-            else:
-                print("No moves to undo.")
-
         elif user_input == "quit":
             print("Goodbye!")
             break
@@ -96,29 +75,37 @@ def play_sudoku(grid):
         else:
             try:
                 position, number = user_input.split()
-                col_idx = ord(position[0].upper()) - ord('A')
-                row_idx = int(position[1]) - 1
+                if len(number) != 1 or not number.isdigit():
+                    raise ValueError("Number must be a single digit.")
+
+                row_idx = ord(position[0].upper()) - ord('A')
+                col_idx = ord(position[1].upper()) - ord('J')
                 number = int(number)
 
-                if grid[row_idx][col_idx] == 0 and is_move_valid(grid, row_idx, col_idx, number):
+                if row_idx < 0 or row_idx >= 9 or col_idx < 0 or col_idx >= 9:
+                    raise ValueError("Row or column out of bounds.")
+
+                if number < 1 or number > 9:
+                    raise ValueError(
+                        "Number out of range. Please enter a number between 1 and 9."
+                    )
+
+                if grid[row_idx][col_idx] == 0 and is_move_valid(
+                        grid, row_idx, col_idx, number):
                     grid[row_idx][col_idx] = number
-                    move_history.append((row_idx, col_idx, number))
                 else:
                     print("Invalid move! Try again.")
-            except (ValueError, IndexError):
-                print("Invalid input! Please enter in the format 'A1 5', or type 'solve', 'hint', 'undo', or 'quit'.")
+            except (ValueError, IndexError) as e:
+                print(
+                    f"Invalid input! {e}. Please enter in the format 'AJ 5', or type 'solve' or 'quit'."
+                )
 
 
-grid = [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 6],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9]
-]
+# Example Sudoku grid (0 represents an empty cell)
+grid = [[5, 3, 0, 0, 7, 0, 0, 0, 0], [6, 0, 0, 1, 9, 5, 0, 0, 0],
+        [0, 9, 8, 0, 0, 0, 0, 6, 0], [8, 0, 0, 0, 6, 0, 0, 0, 3],
+        [4, 0, 0, 8, 0, 3, 0, 0, 1], [7, 0, 0, 0, 2, 0, 0, 0, 6],
+        [0, 6, 0, 0, 0, 0, 2, 8, 0], [0, 0, 0, 4, 1, 9, 0, 0, 5],
+        [0, 0, 0, 0, 8, 0, 0, 7, 9]]
 
 play_sudoku(grid)
