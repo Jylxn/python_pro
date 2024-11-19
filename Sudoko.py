@@ -3,7 +3,7 @@ def display_grid(grid):
     for row_idx, row in enumerate(grid):
         if row_idx % 3 == 0 and row_idx != 0:
             print("  - - - - - - - - - - -")
-        print(chr(row_idx + ord('A')), end=" ")
+        print(string.ascii_uppercase[row_idx], end=" ")
         for col_idx, value in enumerate(row):
             if col_idx % 3 == 0 and col_idx != 0:
                 print("|", end=" ")
